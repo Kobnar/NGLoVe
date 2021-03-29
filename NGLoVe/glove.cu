@@ -5,10 +5,10 @@ namespace GLoVe
 	cudaError_t train(
 		const int C, const int V, const int P, const int T,
 		const int rows[], const int cols[], const float X[],
-		const double xmax, const double alpha, const double eta,
-		double W1[], double W2[],
-		double b1[], double b2[],
-		double J[]
+		const float xmax, const float alpha, const float eta,
+		float W1[], float W2[],
+		float b1[], float b2[],
+		float J[]
 	)
 	{
 		// Init cudaError object
@@ -43,13 +43,13 @@ namespace GLoVe
 
 		// Declare output array device memory pointers
 
-		double* d_W1 = 0;
-		double* d_W2 = 0;
+		float* d_W1 = 0;
+		float* d_W2 = 0;
 
-		double* d_b1 = 0;
-		double* d_b2 = 0;
+		float* d_b1 = 0;
+		float* d_b2 = 0;
 
-		double* d_J = 0;
+		float* d_J = 0;
 
 		// Declare intermediate array device memory pointers
 
@@ -57,16 +57,16 @@ namespace GLoVe
 		float* d_L = 0;
 		float* d_M = 0;
 
-		double* d_DW1J = 0;
-		double* d_DW2J = 0;
-		double* d_DbJ = 0;
+		float* d_DW1J = 0;
+		float* d_DW2J = 0;
+		float* d_DbJ = 0;
 
-		double* d_GW1 = 0;
-		double* d_GW2 = 0;
-		double* d_Gb = 0;
+		float* d_GW1 = 0;
+		float* d_GW2 = 0;
+		float* d_Gb = 0;
 
-		double* d_FoML = 0;
-		double* d_FoML2 = 0;
+		float* d_FoML = 0;
+		float* d_FoML2 = 0;
 
 		// Allocate and copy cooccurrence matrix data
 
@@ -140,70 +140,70 @@ namespace GLoVe
 
 		// Allocate and copy output array memory onto device
 
-		cudaStatus = cudaMalloc((void**)&d_W1, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_W1, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_W1 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_W2, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_W2, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_W2 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_b1, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_b1, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_b1 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_b2, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_b2, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_b2 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_J, T * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_J, T * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_J failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMemcpy(d_W1, W1, V * P * sizeof(double), cudaMemcpyHostToDevice);
+		cudaStatus = cudaMemcpy(d_W1, W1, V * P * sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Coppying W1 to d_W1 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMemcpy(d_W2, W2, V * P * sizeof(double), cudaMemcpyHostToDevice);
+		cudaStatus = cudaMemcpy(d_W2, W2, V * P * sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Coppying W2 to d_W2 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMemcpy(d_b1, b1, V * sizeof(double), cudaMemcpyHostToDevice);
+		cudaStatus = cudaMemcpy(d_b1, b1, V * sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Coppying b1 to d_b1 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMemcpy(d_b2, b2, V * sizeof(double), cudaMemcpyHostToDevice);
+		cudaStatus = cudaMemcpy(d_b2, b2, V * sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Coppying b2 to d_b2 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMemcpy(d_J, J, T * sizeof(double), cudaMemcpyHostToDevice);
+		cudaStatus = cudaMemcpy(d_J, J, T * sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Coppying J to d_J failed!" << std::endl;
@@ -219,56 +219,56 @@ namespace GLoVe
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_DW1J, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_DW1J, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_DW1J failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_DW2J, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_DW2J, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_DW2J failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_DbJ, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_DbJ, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_DbJ failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_GW1, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_GW1, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_GW1 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_GW2, V * P * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_GW2, V * P * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_GW2 failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_Gb, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_Gb, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_Gb failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_FoML, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_FoML, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_FoML failed!" << std::endl;
 			goto Error;
 		}
 
-		cudaStatus = cudaMalloc((void**)&d_FoML2, V * sizeof(double));
+		cudaStatus = cudaMalloc((void**)&d_FoML2, V * sizeof(float));
 		if (cudaStatus != cudaSuccess)
 		{
 			std::cout << "Allocating memory for d_FoML2 failed!" << std::endl;
@@ -334,23 +334,23 @@ namespace GLoVe
 
 		// Copy solutions back to host memory
 
-		cudaStatus = cudaMemcpy(W1, d_W1, V * P * sizeof(double), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(W1, d_W1, V * P * sizeof(float), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess)
 			goto Error;
 
-		cudaStatus = cudaMemcpy(W2, d_W2, V * P * sizeof(double), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(W2, d_W2, V * P * sizeof(float), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess)
 			goto Error;
 
-		cudaStatus = cudaMemcpy(b1, d_b1, V * sizeof(double), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(b1, d_b1, V * sizeof(float), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess)
 			goto Error;
 
-		cudaStatus = cudaMemcpy(b2, d_b2, V * sizeof(double), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(b2, d_b2, V * sizeof(float), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess)
 			goto Error;
 
-		cudaStatus = cudaMemcpy(J, d_J, T * sizeof(double), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(J, d_J, T * sizeof(float), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess)
 			goto Error;
 

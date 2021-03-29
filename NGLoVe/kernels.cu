@@ -28,7 +28,7 @@ namespace GLoVe
 	__global__ void CalcFKernel(
 		const int C,
 		const float X[],
-		const double xmax, const double alpha,
+		const float xmax, const float alpha,
 		float F[]
 	)
 	{
@@ -58,8 +58,8 @@ namespace GLoVe
 	__global__ void CalcMKernel(
 		const int C, const int P,
 		const int rows[], const int cols[],
-		const double W1[], const double W2[],
-		const double b1[], const double b2[],
+		const float W1[], const float W2[],
+		const float b1[], const float b2[],
 		float M[]
 	)
 	{
@@ -81,7 +81,7 @@ namespace GLoVe
 	__global__ void CalcFoMLKernel(
 		const int C,
 		const int rows[], const float F[], const float M[], const float L[],
-		double FoML[]
+		float FoML[]
 	)
 	{
 		int c = blockIdx.x * blockDim.x + threadIdx.x;
@@ -89,7 +89,7 @@ namespace GLoVe
 		if (c < C)
 		{
 			int k = rows[c];
-			double val = F[c] * (M[c] - L[c]);
+			float val = F[c] * (M[c] - L[c]);
 			atomicAdd(&FoML[k], val);
 		}
 	}
@@ -98,7 +98,7 @@ namespace GLoVe
 	__global__ void CalcFoML2Kernel(
 		const int C,
 		const int rows[], const float F[], const float M[], const float L[],
-		double FoML2[]
+		float FoML2[]
 	)
 	{
 		int c = blockIdx.x * blockDim.x + threadIdx.x;
@@ -106,7 +106,7 @@ namespace GLoVe
 		if (c < C)
 		{
 			int k = rows[c];
-			double val = F[c] * pow(M[c] - L[c], 2);
+			float val = F[c] * pow(M[c] - L[c], 2);
 			atomicAdd(&FoML2[k], val);
 		}
 	}
@@ -114,8 +114,8 @@ namespace GLoVe
 	// Calculates J = sum( F_ij * (M_ij - L_ij)^2 )
 	__global__ void CalcJKernel(
 		const int V,
-		const double FoML2[],
-		double* J
+		const float FoML2[],
+		float* J
 	)
 	{
 		int k = blockIdx.x * blockDim.x + threadIdx.x;
@@ -127,10 +127,10 @@ namespace GLoVe
 	// Calculates DWJ
 	__global__ void CalcDWJKernel(
 		const int V, const int P,
-		const double W1[], const double W2[],
-		const double FoML[],
-		double DW1J[], double DW2J[],
-		double GW1[], double GW2[]
+		const float W1[], const float W2[],
+		const float FoML[],
+		float DW1J[], float DW2J[],
+		float GW1[], float GW2[]
 	)
 	{
 		int k = blockIdx.x * blockDim.x + threadIdx.x;
@@ -141,8 +141,8 @@ namespace GLoVe
 			int kp = k * P + p;
 
 			// Calculate derivatives
-			double dw1j = W1[kp] * FoML[k];
-			double dw2j = W2[kp] * FoML[k];
+			float dw1j = W1[kp] * FoML[k];
+			float dw2j = W2[kp] * FoML[k];
 
 			// Update derivatives
 			DW1J[kp] = dw1j;
@@ -157,9 +157,9 @@ namespace GLoVe
 	// Calculates DbJ
 	__global__ void CalcDbJKernel(
 		const int V,
-		const double FoML[],
-		double DbJ[],
-		double Gb[]
+		const float FoML[],
+		float DbJ[],
+		float Gb[]
 	)
 	{
 		int k = blockIdx.x * blockDim.x + threadIdx.x;
@@ -167,8 +167,8 @@ namespace GLoVe
 		if (k < V)
 		{
 			// Calculate derivative
-			//double db = 2 * FoML[k];
-			double db = FoML[k];
+			//float db = 2 * FoML[k];
+			float db = FoML[k];
 
 			// Update derivative
 			DbJ[k] = db;
@@ -179,10 +179,10 @@ namespace GLoVe
 	}
 	__global__ void UpdateVectorKernel(
 		const int V, const int P,
-		const double eta,
-		const double DW1J[], const double DW2J[],
-		const double GW1[], const double GW2[],
-		double W1[], double W2[]
+		const float eta,
+		const float DW1J[], const float DW2J[],
+		const float GW1[], const float GW2[],
+		float W1[], float W2[]
 	)
 	{
 		int k = blockIdx.x * blockDim.x + threadIdx.x;
@@ -197,10 +197,10 @@ namespace GLoVe
 	}
 	__global__ void UpdateBiasKernel(
 		const int V,
-		const double eta,
-		const double DbJ[],
-		const double Gb[],
-		double b1[], double b2[]
+		const float eta,
+		const float DbJ[],
+		const float Gb[],
+		float b1[], float b2[]
 	)
 	{
 		int k = blockIdx.x * blockDim.x + threadIdx.x;

@@ -12,9 +12,9 @@ namespace GLoVe
 	cudaError_t train(
 		const int C, const int V, const int P, const int T,
 		const int rows[], const int cols[], const float X[],
-		const double xmax, const double alpha, const double eta,
-		double W1[], double W2[],
-		double b1[], double b2[],
-		double J[]
+		const float xmax, const float alpha, const float eta,
+		float W1[], float W2[],
+		float b1[], float b2[],
+		float J[]
 	);
 }
